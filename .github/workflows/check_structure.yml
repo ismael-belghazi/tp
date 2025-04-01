@@ -32,38 +32,23 @@ jobs:
 
           declare -A allowed_extensions
           allowed_extensions=( 
-            ["site"]="html php"
-            ["site/img"]="png jpg jpeg"
+            ["site"]="html"
+            ["site/img"]="png"
             ["site/css"]="css"
             ["site/js"]="js"
           )
 
-          # Fonction pour vérifier un seul fichier à la fois
-          check_file() {
-            local file=$1
-            local dir=$2
-            local valid_exts=$3
-            
-            # Extraction de l'extension et mise en minuscules
+          # Vérifier chaque fichier une seule fois
+          find site site/img site/css site/js -type f ! -name ".gitkeep" | while read -r file; do
+            dir=$(dirname "$file")
             ext="${file##*.}"
-            ext="${ext,,}"
+            ext="${ext,,}"  # Met en minuscules
 
-            # Affichage du fichier et de son extension pour débogage
             echo "🔍 Vérification du fichier : $file (extension : $ext)"
 
-            # Vérifier si l'extension est valide
-            if ! echo "$valid_exts" | grep -wq "$ext"; then
+            if [[ ! " ${allowed_extensions[$dir]} " =~ " $ext " ]]; then
               echo "❌ Erreur : Fichier non conforme -> $file"
-              exit 1  # Arrête immédiatement si un fichier est invalide
-            fi
-          }
-
-          # Vérification de chaque fichier dans son dossier
-          for dir in "${!allowed_extensions[@]}"; do
-            if [ -d "$dir" ]; then
-              while IFS= read -r -d '' file; do
-                check_file "$file" "$dir" "${allowed_extensions[$dir]}"
-              done < <(find "$dir" -type f ! -name ".gitkeep" -print0)
+              exit 1  # Arrêt immédiat
             fi
           done
 

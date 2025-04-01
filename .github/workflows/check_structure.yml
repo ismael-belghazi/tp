@@ -1,0 +1,57 @@
+name: Vérification de l'arborescence
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  check-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Vérifier l'arborescence
+        run: |
+          echo "Vérification de l'arborescence du projet..."
+
+          # Vérifier si les dossiers existent
+          required_dirs=("site" "site/img" "site/css" "site/js" "src")
+
+          for dir in "${required_dirs[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "❌ Erreur : Dossier manquant -> $dir"
+              exit 1
+            fi
+          done
+
+          echo "✅ Arborescence correcte."
+
+      - name: Vérifier les types de fichiers
+        run: |
+          echo "Vérification des fichiers..."
+
+          # Vérifier les extensions des fichiers
+          if find site -type f ! -name "*.html" ! -name "*.php" | grep .; then
+            echo "❌ Erreur : 'site' ne doit contenir que des fichiers .html ou .php"
+            exit 1
+          fi
+
+          if find site/img -type f ! -name "*.png" ! -name "*.jpg" | grep .; then
+            echo "❌ Erreur : 'img' ne doit contenir que des fichiers .png ou .jpg"
+            exit 1
+          fi
+
+          if find site/css -type f ! -name "*.css" | grep .; then
+            echo "❌ Erreur : 'css' ne doit contenir que des fichiers .css"
+            exit 1
+          fi
+
+          if find site/js -type f ! -name "*.js" | grep .; then
+            echo "❌ Erreur : 'js' ne doit contenir que des fichiers .js"
+            exit 1
+          fi
+
+          echo "✅ Vérification des fichiers réussie."

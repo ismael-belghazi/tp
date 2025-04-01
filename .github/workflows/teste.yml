@@ -1,12 +1,27 @@
-name: Liste de fichier avec Push
+name: PHP Code Sniffer
 
-on: [push]
+on:
+  push:
+    branches:
+      - mes-dates
+  pull_request:
+    branches:
+      - main
+      - master
 
 jobs:
-  list-files:
+  lint-php:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: phpcs
 
-      - name: Liste de fichier
-        run: ls -la
+      - name: Run PHPCS
+        run: |
+          phpcs --standard=PSR12 --ignore=vendor . || exit 1

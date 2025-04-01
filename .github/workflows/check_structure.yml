@@ -15,9 +15,10 @@ jobs:
         run: |
           echo "🔍 Vérification de l'arborescence du projet..."
 
-          required_dirs=("site" "site/img" "site/css" "site/js" "src")
+          declare -A required_dirs
+          required_dirs=(["site"]="html php" ["site/img"]="png jpg" ["site/css"]="css" ["site/js"]="js" ["src"]="*")
 
-          for dir in "${required_dirs[@]}"; do
+          for dir in "${!required_dirs[@]}"; do
             if [ ! -d "$dir" ]; then
               echo "❌ Erreur : Dossier manquant -> $dir"
               exit 1
@@ -30,24 +31,19 @@ jobs:
         run: |
           echo "🔍 Vérification des fichiers..."
 
-          if find site -type f ! -name "*.html" ! -name "*.php" | grep -q .; then
-            echo "❌ Erreur : 'site' ne doit contenir que des fichiers .html ou .php"
-            exit 1
-          fi
+          declare -A allowed_extensions
+          allowed_extensions=(["site"]="html php" ["site/img"]="png jpg" ["site/css"]="css" ["site/js"]="js")
 
-          if find site/img -type f ! -name "*.png" ! -name "*.jpg" | grep -q .; then
-            echo "❌ Erreur : 'img' ne doit contenir que des fichiers .png ou .jpg"
-            exit 1
-          fi
-
-          if find site/css -type f ! -name "*.css" | grep -q .; then
-            echo "❌ Erreur : 'css' ne doit contenir que des fichiers .css"
-            exit 1
-          fi
-
-          if find site/js -type f ! -name "*.js" | grep -q .; then
-            echo "❌ Erreur : 'js' ne doit contenir que des fichiers .js"
-            exit 1
-          fi
+          for dir in "${!allowed_extensions[@]}"; do
+            if [ -d "$dir" ]; then
+              invalid_files=$(find "$dir" -type f ! \( $(echo "${allowed_extensions[$dir]}" | sed 's/ / -o -name *./g' | sed 's/^/-name *./') \) 2>/dev/null)
+              
+              if [ -n "$invalid_files" ]; then
+                echo "❌ Erreur : Fichiers non conformes trouvés dans $dir :"
+                echo "$invalid_files"
+                exit 1
+              fi
+            fi
+          done
 
           echo "✅ Vérification des fichiers réussie."

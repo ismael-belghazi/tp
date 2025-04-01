@@ -12,11 +12,14 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3.1.1' 
-          tools: phpcs
+          php-version: '8.3'  
+          tools: phpcs, composer
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-suggest
 
       - name: List files
         run: ls -la
 
       - name: Run PHPCS
-        run: vendor/bin/phpcs --standard=PSR12 src/
+        run: phpcs --standard=PSR12 src/

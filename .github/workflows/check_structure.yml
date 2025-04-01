@@ -44,6 +44,7 @@ jobs:
             local valid_exts=$2
             for file in $(find "$dir" -type f ! -name ".gitkeep"); do
               ext="${file##*.}"
+              ext="${ext,,}"  # Conversion en minuscules
               if ! echo "$valid_exts" | grep -wq "$ext"; then
                 echo "❌ Erreur : Fichier non conforme trouvé -> $file"
                 return 1

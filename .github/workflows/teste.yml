@@ -1,0 +1,13 @@
+name: Liste de fichier avec Push
+
+on: [push]
+
+jobs:
+  list-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repertoire
+        uses: actions/checkout@v4
+
+      - name: Liste de fichier
+        run: ls -la

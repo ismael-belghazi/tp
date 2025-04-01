@@ -33,43 +33,38 @@ jobs:
           declare -A allowed_extensions
           allowed_extensions=( 
             ["site"]="html php"
-            ["site/img"]="png"
+            ["site/img"]="png jpg jpeg"
             ["site/css"]="css"
             ["site/js"]="js"
           )
 
-          # Fonction pour vérifier les extensions de fichiers
-          check_files() {
-            local dir=$1
-            local valid_exts=$2
-            for file in $(find "$dir" -type f ! -name ".gitkeep"); do
-              # Vérification du fichier trouvé
-              echo "🔍 Vérification du fichier : $file"
-              
-              # Extraction de l'extension et mise en minuscules
-              ext="${file##*.}"
-              ext="${ext,,}"
-              
-              # Affichage de l'extension pour débogage
-              echo "🔍 Extension du fichier : $ext"
-              
-              # Vérifier si l'extension est dans la liste des extensions valides
-              if ! echo "$valid_exts" | grep -wq "$ext"; then
-                echo "❌ Erreur : Fichier non conforme trouvé -> $file"
-                return 1
-              fi
-            done
-            return 0
+          # Fonction pour vérifier un seul fichier à la fois
+          check_file() {
+            local file=$1
+            local dir=$2
+            local valid_exts=$3
+            
+            # Extraction de l'extension et mise en minuscules
+            ext="${file##*.}"
+            ext="${ext,,}"
+
+            # Affichage du fichier et de son extension pour débogage
+            echo "🔍 Vérification du fichier : $file (extension : $ext)"
+
+            # Vérifier si l'extension est valide
+            if ! echo "$valid_exts" | grep -wq "$ext"; then
+              echo "❌ Erreur : Fichier non conforme -> $file"
+              exit 1  # Arrête immédiatement si un fichier est invalide
+            fi
           }
 
-          # Vérification des fichiers dans chaque dossier
+          # Vérification de chaque fichier dans son dossier
           for dir in "${!allowed_extensions[@]}"; do
             if [ -d "$dir" ]; then
-              check_files "$dir" "${allowed_extensions[$dir]}"
-              if [ $? -ne 0 ]; then
-                exit 1
-              fi
+              while IFS= read -r -d '' file; do
+                check_file "$file" "$dir" "${allowed_extensions[$dir]}"
+              done < <(find "$dir" -type f ! -name ".gitkeep" -print0)
             fi
           done
 
-          echo "✅ Vérification des fichiers réussie."
+          echo "✅ Tous les fichiers sont conformes."

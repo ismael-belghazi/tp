@@ -33,7 +33,7 @@ jobs:
           declare -A allowed_extensions
           allowed_extensions=( 
             ["site"]="html php"
-            ["site/img"]="png jpg"
+            ["site/img"]="png"
             ["site/css"]="css"
             ["site/js"]="js"
           )

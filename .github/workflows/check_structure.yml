@@ -31,7 +31,7 @@ jobs:
           echo "🔍 Vérification des fichiers..."
 
           declare -A allowed_extensions
-          allowed_extensions=(
+          allowed_extensions=( 
             ["site"]="html php"
             ["site/img"]="png jpg"
             ["site/css"]="css"
@@ -40,7 +40,7 @@ jobs:
 
           for dir in "${!allowed_extensions[@]}"; do
             if [ -d "$dir" ]; then
-              invalid_files=$(find "$dir" -type f ! \( $(echo "${allowed_extensions[$dir]}" | sed 's/ / -o -name *./g' | sed 's/^/-name *./') \) 2>/dev/null)
+              invalid_files=$(find "$dir" -type f ! -name ".gitkeep" ! \( $(echo "${allowed_extensions[$dir]}" | sed 's/ / -o -name *./g' | sed 's/^/-name *./') \) 2>/dev/null)
               
               if [ -n "$invalid_files" ]; then
                 echo "❌ Erreur : Fichiers non conformes trouvés dans $dir :"

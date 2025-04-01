@@ -40,8 +40,9 @@ jobs:
 
           for dir in "${!allowed_extensions[@]}"; do
             if [ -d "$dir" ]; then
-              invalid_files=$(find "$dir" -type f ! -name ".gitkeep" ! \( $(echo "${allowed_extensions[$dir]}" | sed 's/ / -o -name *./g' | sed 's/^/-name *./') \) 2>/dev/null)
-              
+              # Exclusion des fichiers .gitkeep et gestion des espaces dans les noms de fichiers
+              invalid_files=$(find "$dir" -type f ! -name ".gitkeep" ! \( $(echo "${allowed_extensions[$dir]}" | sed 's/ / -o -name *./g' | sed 's/^/-name *./') \) -print 2>/dev/null)
+
               if [ -n "$invalid_files" ]; then
                 echo "❌ Erreur : Fichiers non conformes trouvés dans $dir :"
                 echo "$invalid_files"

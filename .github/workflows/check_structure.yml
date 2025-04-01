@@ -11,45 +11,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Vérifier l'arborescence
+      - name: Installer les dépendances (si nécessaire)
         run: |
-          echo "🔍 Vérification de l'arborescence du projet..."
-          
-          required_dirs=("site" "site/img" "site/css" "site/js" "src")
-          
-          for dir in "${required_dirs[@]}"; do
-            if [ ! -d "$dir" ]; then
-              echo "❌ Erreur : Dossier manquant -> $dir"
-              exit 1
-            fi
-          done
+          sudo apt-get update
+          sudo apt-get install -y bash
 
-          echo "✅ Arborescence correcte."
-
-      - name: Vérifier les types de fichiers
+      - name: Exécuter le script de vérification
         run: |
-          echo "🔍 Vérification des fichiers..."
-
-          declare -A allowed_extensions
-          allowed_extensions=( 
-            ["site"]="html"
-            ["site/img"]="png"
-            ["site/css"]="css"
-            ["site/js"]="js"
-          )
-
-          # Vérifier chaque fichier une seule fois
-          find site site/img site/css site/js -type f ! -name ".gitkeep" | while read -r file; do
-            dir=$(dirname "$file")
-            ext="${file##*.}"
-            ext="${ext,,}"  # Met en minuscules
-
-            echo "🔍 Vérification du fichier : $file (extension : $ext)"
-
-            if [[ ! " ${allowed_extensions[$dir]} " =~ " $ext " ]]; then
-              echo "❌ Erreur : Fichier non conforme -> $file"
-              exit 1  # Arrêt immédiat
-            fi
-          done
-
-          echo "✅ Tous les fichiers sont conformes."
+          chmod +x ./script.sh  # Assure-toi que ton script est exécutable
+          /bin/bash ./script.sh

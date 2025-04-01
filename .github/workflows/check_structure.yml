@@ -43,14 +43,17 @@ jobs:
             local dir=$1
             local valid_exts=$2
             for file in $(find "$dir" -type f ! -name ".gitkeep"); do
-              # S'assurer que le nom du fichier est entre guillemets pour gérer les espaces
-              file="${file// /\\ }"  # Remplacer les espaces par des \ (anti-slash)
-              ext="${file##*.}"
-              ext="${ext,,}"  # Conversion en minuscules
-
-              # Affichage de débogage pour vérifier l'extension
-              echo "🔍 Vérification du fichier : $file (extension : $ext)"
+              # Vérification du fichier trouvé
+              echo "🔍 Vérification du fichier : $file"
               
+              # Extraction de l'extension et mise en minuscules
+              ext="${file##*.}"
+              ext="${ext,,}"
+              
+              # Affichage de l'extension pour débogage
+              echo "🔍 Extension du fichier : $ext"
+              
+              # Vérifier si l'extension est dans la liste des extensions valides
               if ! echo "$valid_exts" | grep -wq "$ext"; then
                 echo "❌ Erreur : Fichier non conforme trouvé -> $file"
                 return 1

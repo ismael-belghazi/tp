@@ -38,14 +38,25 @@ jobs:
             ["site/js"]="js"
           )
 
+          # Fonction pour vérifier les extensions de fichiers
+          check_files() {
+            local dir=$1
+            local valid_exts=$2
+            for file in $(find "$dir" -type f ! -name ".gitkeep"); do
+              ext="${file##*.}"
+              if ! echo "$valid_exts" | grep -wq "$ext"; then
+                echo "❌ Erreur : Fichier non conforme trouvé -> $file"
+                return 1
+              fi
+            done
+            return 0
+          }
+
+          # Vérification des fichiers dans chaque dossier
           for dir in "${!allowed_extensions[@]}"; do
             if [ -d "$dir" ]; then
-              # Exclusion des fichiers .gitkeep et gestion des espaces dans les noms de fichiers
-              invalid_files=$(find "$dir" -type f ! -name ".gitkeep" | grep -v -E "\.(${allowed_extensions[$dir]// /|})$")
-
-              if [ -n "$invalid_files" ]; then
-                echo "❌ Erreur : Fichiers non conformes trouvés dans $dir :"
-                echo "$invalid_files"
+              check_files "$dir" "${allowed_extensions[$dir]}"
+              if [ $? -ne 0 ]; then
                 exit 1
               fi
             fi

@@ -14,11 +14,10 @@ jobs:
       - name: Vérifier l'arborescence
         run: |
           echo "🔍 Vérification de l'arborescence du projet..."
-
-          declare -A required_dirs
-          required_dirs=(["site"]="html php" ["site/img"]="png jpg" ["site/css"]="css" ["site/js"]="js" ["src"]="*")
-
-          for dir in "${!required_dirs[@]}"; do
+          
+          required_dirs=("site" "site/img" "site/css" "site/js" "src")
+          
+          for dir in "${required_dirs[@]}"; do
             if [ ! -d "$dir" ]; then
               echo "❌ Erreur : Dossier manquant -> $dir"
               exit 1
@@ -32,7 +31,12 @@ jobs:
           echo "🔍 Vérification des fichiers..."
 
           declare -A allowed_extensions
-          allowed_extensions=(["site"]="html php" ["site/img"]="png jpg" ["site/css"]="css" ["site/js"]="js")
+          allowed_extensions=(
+            ["site"]="html php"
+            ["site/img"]="png jpg"
+            ["site/css"]="css"
+            ["site/js"]="js"
+          )
 
           for dir in "${!allowed_extensions[@]}"; do
             if [ -d "$dir" ]; then

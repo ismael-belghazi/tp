@@ -19,6 +19,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-progress
 
+      - name: Fix permission for PHPUnit
+        run: chmod +x vendor/bin/phpunit
+
       - name: Run PHPUnit with coverage report
         run: vendor/bin/phpunit --coverage-html coverage
 

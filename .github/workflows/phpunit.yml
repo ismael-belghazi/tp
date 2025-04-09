@@ -1,0 +1,32 @@
+name: CI - Tests PHPUnit
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP with Xdebug for coverage
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: xdebug
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-progress
+
+      - name: Fix permission for PHPUnit
+        run: chmod +x vendor/bin/phpunit
+
+      - name: Run PHPUnit with coverage report
+        run: vendor/bin/phpunit --coverage-html coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: coverage
